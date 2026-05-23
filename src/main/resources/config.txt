@@ -1,0 +1,7 @@
+port=8888
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=
+db.username=
+db.password=
+db.dialect=org.hibernate.dialect.MySQLDialect
+db.pool_size=10
