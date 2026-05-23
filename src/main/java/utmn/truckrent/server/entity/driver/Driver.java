@@ -1,19 +1,13 @@
 package utmn.truckrent.server.entity.driver;
 
 import jakarta.persistence.*;
-import utmn.truckrent.server.entity.finance.Finance;
 import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.delivery.Delivery;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "drivers")
 public class Driver {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_seq")
-    @SequenceGenerator(name = "driver_seq", sequenceName = "driver_id_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int driverId;
 
 //    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -30,7 +24,7 @@ public class Driver {
 
     private String lastname;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", unique = true)
     private Account account;
 

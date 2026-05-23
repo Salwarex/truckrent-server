@@ -54,6 +54,7 @@ public class Delivery {
     }
 
     public Delivery() {
+
     }
 
     public int getDeliveryId() {

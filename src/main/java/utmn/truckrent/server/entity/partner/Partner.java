@@ -1,19 +1,14 @@
 package utmn.truckrent.server.entity.partner;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.delivery.Delivery;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "drivers")
-@PrimaryKeyJoinColumn(name = "accountId")
+@Table(name = "partners")
 public class Partner {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "partner_seq")
-    @SequenceGenerator(name = "partner_seq", sequenceName = "partner_id_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int partnerId;
 
     @Column(nullable = false)
@@ -29,7 +24,7 @@ public class Partner {
 //    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 //    private List<Delivery> deliveriesAsReceiver = new ArrayList<>();
 
-    @OneToOne(optional = true, fetch = FetchType.LAZY)
+    @OneToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", unique = true)
     private Account account;
 

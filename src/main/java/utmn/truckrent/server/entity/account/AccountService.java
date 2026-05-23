@@ -11,7 +11,15 @@ public class AccountService {
     //create
     public static Account register(String login, String password, Role role) throws ServiceExecutionException {
         Account account = new Account();
-        if(login == null || password == null) throw new ServiceExecutionException("Login and password can't be null!");
+        if(login == null || password == null) throw new ServiceExecutionException("Логин и пароль не могут быть пустыми!");
+
+        boolean finded = true;
+        try{
+            get(login);
+        }catch (ServiceExecutionException e){
+            finded = false;
+        }
+        if(finded) throw new ServiceExecutionException("Учётная запись с логином %s уже существует!".formatted(login));
 
         account.setLogin(login);
         account.setPassword(password);
@@ -22,12 +30,12 @@ public class AccountService {
 
     //get
     public static Account get(String login) throws ServiceExecutionException{
-        return repository.findByLogin(login).orElseThrow(() -> new ServiceExecutionException("Can't find account with provided login (%s)"
+        return repository.findByLogin(login).orElseThrow(() -> new ServiceExecutionException("Невозможно найти запись по логину (%s)"
                 .formatted(login)));
     }
 
     public static Account get(int id) throws ServiceExecutionException{
-        return repository.findById(id).orElseThrow(() -> new ServiceExecutionException("Can't find account with provided id (#%d)"
+        return repository.findById(id).orElseThrow(() -> new ServiceExecutionException("Невозможно найти запись по id (#%d)"
                 .formatted(id)));
     }
 
@@ -42,14 +50,14 @@ public class AccountService {
     }
 
     public static void delete(Account account) throws ServiceExecutionException{
-        if(account == null) throw new ServiceExecutionException("Provided null account object");
+        if(account == null) throw new ServiceExecutionException("Предоставлен пустой объект");
         delete(account.getAccountId());
     }
 
 
     //filters
     public static List<Account> filterRole(Role role) throws ServiceExecutionException{
-        if(role == null) throw new ServiceExecutionException("Provided null role object");
+        if(role == null) throw new ServiceExecutionException("Предоставлена пустая роль");
         return repository.findAllByRole(role);
     }
 }

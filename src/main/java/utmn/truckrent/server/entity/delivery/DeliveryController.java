@@ -60,15 +60,8 @@ public class DeliveryController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         }); //создание нового
-        post("{id}", ctx -> {
+        get("{id}", ctx -> {
             try{
-                int execId = Integer.parseInt(Objects.requireNonNull(ctx.formParam("execId")));
-                Account executor = AccountService.get(execId);
-                if(executor == null || executor.getRole().getLevel() <= 0){
-                    answerErr(ctx, 403, 0, "Доступ запрещён!");
-                    return;
-                }
-
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Delivery result = DeliveryService.get(id);
                 answerMapping(ctx, 200, 1, result);

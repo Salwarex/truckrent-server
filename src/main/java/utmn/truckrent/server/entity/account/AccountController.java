@@ -29,15 +29,8 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Возникла ошибка при регистрации пользователя: %s".formatted(e.getMessage()));
             }
         }); //создание нового аккаунта
-        post("{id}", ctx -> {
+        get("{id}", ctx -> {
             try{
-                int execId = Integer.parseInt(Objects.requireNonNull(ctx.formParam("execId")));
-                Account executor = AccountService.get(execId);
-                if(executor == null || executor.getRole().getLevel() <= 0){
-                    answerErr(ctx, 403, 0, "Доступ запрещён!");
-                    return;
-                }
-
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Account result = AccountService.get(id);
                 answerMapping(ctx, 200, 1, result);
@@ -110,8 +103,30 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         }); //удаление
-        get("{id}", ctx -> {
+        post("auth", ctx -> {
+            try{
+                String login = ctx.formParam("login");
+                String password = ctx.formParam("password");
 
+                if(login == null || password == null)
+                    answerErr(ctx, 400, 0, "Неккоректные параметры запроса: Логин или пароль пусты!");
+
+                Account account = AccountService.get(login);
+                if(account.isPasswordMatch(password)){
+                    answerMapping(ctx, 200, 1, account);
+                }
+                else{
+                    answerErr(ctx, 403, 0, "Неверный логин или пароль!");
+                }
+            }catch (ServiceExecutionException e){
+                answerErr(ctx, 403, 0, "Неверный логин или пароль!");
+            }
+            catch (NumberFormatException e){
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
         }); //аутентификация и авторизация
     }
 
