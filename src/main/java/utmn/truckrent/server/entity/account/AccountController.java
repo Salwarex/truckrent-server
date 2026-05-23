@@ -3,8 +3,17 @@ package utmn.truckrent.server.entity.account;
 import io.javalin.Javalin;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
+import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
+import utmn.truckrent.server.entity.driver.Driver;
+import utmn.truckrent.server.entity.driver.DriverService;
+import utmn.truckrent.server.entity.partner.Partner;
+import utmn.truckrent.server.entity.partner.PartnerController;
+import utmn.truckrent.server.entity.partner.PartnerService;
+import utmn.truckrent.server.utils.ListUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class AccountController extends Controller {
@@ -128,6 +137,53 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         }); //аутентификация и авторизация
+
+        get("filter", ctx -> {
+            try{
+                List<List<Account>> lists = new ArrayList<>();
+
+                String roleStr = ctx.queryParam("role");
+                String driverIdStr = ctx.queryParam("driverId");
+                String partnerIdStr = ctx.queryParam("partnerId");
+
+                if(roleStr != null){
+                    Role role = Role.valueOf(roleStr);
+                    lists.add(AccountService.filterRole(role));
+                }
+                if(driverIdStr != null){
+                    int id = Integer.parseInt(driverIdStr);
+                    Driver driver = DriverService.get(id);
+
+                    lists.add(AccountRepository.getInstance().findAllByDriver(driver));
+                }
+                if(partnerIdStr != null){
+                    int id = Integer.parseInt(partnerIdStr);
+                    Partner partner = PartnerService.get(id);
+
+                    lists.add(AccountRepository.getInstance().findAllByPartner(partner));
+                }
+
+                List<Account> result = new ArrayList<>();
+
+                int i = 0;
+                for(List<Account> list: lists){
+                    if(i == 0 && !lists.isEmpty()) result = lists.getFirst();
+                    else result = ListUtils.and(result, list);
+                    i++;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
+
+            }catch (ServiceExecutionException e){
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            }
+            catch (NumberFormatException e){
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
     }
 
     @Override

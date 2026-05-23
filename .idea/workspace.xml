@@ -6,21 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6ff857a3-4a82-45c0-b03f-516b95d66628" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/controller/rest/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/controller/rest/Response.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/container/ContainerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/container/ContainerController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/Delivery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/Delivery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/DeliveryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/DeliveryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/Driver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/Driver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/DriverController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/DriverController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/finance/FinanceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/finance/FinanceController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/Partner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/Partner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/PartnerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/PartnerController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/trademark/TradeMarkController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/trademark/TradeMarkController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truck/TruckController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truck/TruckController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truckmark/TruckMarkController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truckmark/TruckMarkController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

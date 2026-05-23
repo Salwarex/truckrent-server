@@ -1,11 +1,9 @@
 package utmn.truckrent.server.controller.rest;
 
-import io.javalin.http.Context;
+import java.util.List;
 
 public interface Response {
     int getCode();
-
-    String getDescription();
 
     /*
      * -10 - Не выполнено: Неизвестная ошибка<br>
@@ -29,11 +27,11 @@ public interface Response {
 
     class Default implements Response{
         private int code;
-        private String description;
+        private String content;
 
-        public Default(int code, String description) {
+        public Default(int code, String content) {
             this.code = code;
-            this.description = description;
+            this.content = content;
         }
 
         public Default() {
@@ -44,17 +42,46 @@ public interface Response {
             return code;
         }
 
-        @Override
-        public String getDescription() {
-            return description;
+        public String getContent() {
+            return content;
         }
 
         public void setCode(int code) {
             this.code = code;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
+        public void setContent(String content) {
+            this.content = content;
+        }
+    }
+
+    class ListResponse<T> implements Response{
+        private int code;
+        private List<T> list;
+
+        public ListResponse(int code, List<T> list) {
+            this.code = code;
+            this.list = list;
+        }
+
+        public ListResponse() {
+        }
+
+        @Override
+        public int getCode() {
+            return code;
+        }
+
+        public void setCode(int code) {
+            this.code = code;
+        }
+
+        public List<T> getList() {
+            return list;
+        }
+
+        public void setList(List<T> list) {
+            this.list = list;
         }
     }
 }
