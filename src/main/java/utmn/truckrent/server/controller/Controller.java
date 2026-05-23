@@ -1,7 +1,11 @@
 package utmn.truckrent.server.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import utmn.truckrent.server.Application;
+import utmn.truckrent.server.controller.rest.Response;
 
 public abstract class Controller {
     protected final Javalin app;
@@ -12,7 +16,6 @@ public abstract class Controller {
     }
 
     protected abstract void initEndpoints();
-    //ctx.status(200).json(new Response.Default(1, Application.getObjectMapper().writeValueAsString(user)));
 
     protected abstract String path();
 
@@ -44,5 +47,25 @@ public abstract class Controller {
 
     private String getKeyName(String endPoint){
         return "/" + path() + (endPoint == null || endPoint.isBlank() || endPoint.isEmpty() ? "" : "/" + endPoint);
+    }
+
+    protected void answerMapping(Context ctx, int code, int localCode, Object obj) {
+        try{
+            answerJsonDefault(ctx, code, localCode, Application.getObjectMapper().writeValueAsString(obj));
+        }catch (JsonProcessingException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void answerJsonDefault(Context ctx, int code, int localCode, String json){
+        answerResponse(ctx, code, new Response.Default(localCode, json));
+    }
+
+    protected void answerResponse(Context ctx, int code, Response response){
+        ctx.status(code).json(response);
+    }
+
+    protected void answerErr(Context ctx, int httpCode, int apiCode, String description){
+        ctx.status(httpCode).json(new Response.Default(apiCode, description));
     }
 }

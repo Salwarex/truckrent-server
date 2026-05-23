@@ -10,16 +10,17 @@ import java.util.List;
 
 @Entity
 @Table(name = "drivers")
-@PrimaryKeyJoinColumn(name = "accountId")
-public class Driver extends Account {
-    @Column(nullable = false, unique = true)
-    private String driverCode;
+public class Driver {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_seq")
+    @SequenceGenerator(name = "driver_seq", sequenceName = "driver_id_seq", allocationSize = 50)
+    private int driverId;
 
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Delivery> deliveries = new ArrayList<>();
-
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Finance> finances = new ArrayList<>();
+//    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    private List<Delivery> deliveries = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    private List<Finance> finances = new ArrayList<>();
 
     @Column(nullable = false)
     private String surname;
@@ -29,4 +30,76 @@ public class Driver extends Account {
 
     private String lastname;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", unique = true)
+    private Account account;
+
+    public Driver(int driverId, String surname, String name, String lastname, Account account) {
+        this.driverId = driverId;
+//        this.deliveries = deliveries;
+//        this.finances = finances;
+        this.surname = surname;
+        this.name = name;
+        this.lastname = lastname;
+        this.account = account;
+    }
+
+    public Driver() {
+    }
+
+    public int getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(int driverId) {
+        this.driverId = driverId;
+    }
+
+//    public List<Delivery> getDeliveries() {
+//        return deliveries;
+//    }
+//
+//    public void setDeliveries(List<Delivery> deliveries) {
+//        this.deliveries = deliveries;
+//    }
+//
+//    public List<Finance> getFinances() {
+//        return finances;
+//    }
+//
+//    public void setFinances(List<Finance> finances) {
+//        this.finances = finances;
+//    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
 }

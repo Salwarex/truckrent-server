@@ -25,9 +25,7 @@ public interface Response {
      * 11 - Задача в процессе
      * 12 - Обрабатывается
      */
-    static void err(Context ctx, int httpCode, int apiCode, String description){
-        ctx.status(httpCode).json(new Default(apiCode, description));
-    }
+
 
     class Default implements Response{
         private int code;

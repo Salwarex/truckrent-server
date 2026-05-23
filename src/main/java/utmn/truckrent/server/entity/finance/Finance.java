@@ -21,4 +21,46 @@ public class Finance {
 
     @Column(nullable = false)
     private BigDecimal outcome;
+
+    public Finance(int financeId, Driver driver, BigDecimal income, BigDecimal outcome) {
+        this.financeId = financeId;
+        this.driver = driver;
+        this.income = income;
+        this.outcome = outcome;
+    }
+
+    public Finance() {
+    }
+
+    public int getFinanceId() {
+        return financeId;
+    }
+
+    public void setFinanceId(int financeId) {
+        this.financeId = financeId;
+    }
+
+    public Driver getDriver() {
+        return driver;
+    }
+
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
+
+    public BigDecimal getIncome() {
+        return income;
+    }
+
+    public void setIncome(BigDecimal income) {
+        this.income = income;
+    }
+
+    public BigDecimal getOutcome() {
+        return outcome;
+    }
+
+    public void setOutcome(BigDecimal outcome) {
+        this.outcome = outcome;
+    }
 }
