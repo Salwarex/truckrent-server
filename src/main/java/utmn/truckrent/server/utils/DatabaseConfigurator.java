@@ -1,7 +1,15 @@
 package utmn.truckrent.server.utils;
 
 import org.hibernate.cfg.Configuration;
-import utmn.truckrent.server.entity.TruckMark;
+import utmn.truckrent.server.entity.account.Account;
+import utmn.truckrent.server.entity.container.Container;
+import utmn.truckrent.server.entity.delivery.Delivery;
+import utmn.truckrent.server.entity.driver.Driver;
+import utmn.truckrent.server.entity.finance.Finance;
+import utmn.truckrent.server.entity.partner.Partner;
+import utmn.truckrent.server.entity.trademark.TradeMark;
+import utmn.truckrent.server.entity.truck.Truck;
+import utmn.truckrent.server.entity.truckmark.TruckMark;
 
 public class DatabaseConfigurator {
     public static Configuration buildHibernateConfig() {
@@ -20,6 +28,14 @@ public class DatabaseConfigurator {
         cfg.setProperty("hibernate.current_session_context_class", "thread");
 
         cfg.addAnnotatedClass(TruckMark.class);
+        cfg.addAnnotatedClass(Truck.class);
+        cfg.addAnnotatedClass(TradeMark.class);
+        cfg.addAnnotatedClass(Partner.class);
+        cfg.addAnnotatedClass(Finance.class);
+        cfg.addAnnotatedClass(Driver.class);
+        cfg.addAnnotatedClass(Delivery.class);
+        cfg.addAnnotatedClass(Container.class);
+        cfg.addAnnotatedClass(Account.class);
 
         return cfg;
     }

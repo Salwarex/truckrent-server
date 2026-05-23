@@ -5,28 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ff857a3-4a82-45c0-b03f-516b95d66628" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/Application.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/controller/Controller.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/controller/rest/Request.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/controller/rest/Response.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/TruckMark.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/Config.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/DatabaseConfigurator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/HibernateUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/ServiceHash.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/TokenMaster.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/config.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/Role.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/Account.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/account/AccountService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/container/Container.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/container/ContainerRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/container/ContainerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/Delivery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/DeliveryRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/delivery/DeliveryService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/Driver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/DriverRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/driver/DriverService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/finance/Finance.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/finance/FinanceRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/finance/FinanceService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/Partner.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/PartnerRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/partner/PartnerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/trademark/TradeMark.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/trademark/TradeMarkRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/trademark/TradeMarkService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truck/Truck.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truck/TruckRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truck/TruckService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truckmark/TruckMark.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truckmark/TruckMarkRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/truckmark/TruckMarkService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/repository/GenericRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/repository/GenericRepositoryImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/entity/TruckMark.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/DatabaseConfigurator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/utmn/truckrent/server/utils/DatabaseConfigurator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +52,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Enum" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -57,14 +70,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Пользователь/Desktop/plugins/truckrent-server/src/main/resources"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Пользователь/Desktop/plugins/truckrent-server/src/main/resources&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Пользователь\Desktop\plugins\truckrent-server\src\main\resources" />
