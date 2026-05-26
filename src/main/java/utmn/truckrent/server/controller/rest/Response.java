@@ -1,5 +1,7 @@
 package utmn.truckrent.server.controller.rest;
 
+import utmn.truckrent.server.entity.account.Account;
+
 import java.util.List;
 
 public interface Response {
@@ -52,6 +54,51 @@ public interface Response {
 
         public void setContent(String content) {
             this.content = content;
+        }
+    }
+
+    class SuccessAccessResponse implements Response{
+        private int code;
+        private Account account;
+        private String refreshToken;
+        private String accessToken;
+
+        public SuccessAccessResponse(int code, Account account, String refreshToken, String accessToken) {
+            this.account = account;
+            this.refreshToken = refreshToken;
+            this.accessToken = accessToken;
+        }
+
+        public SuccessAccessResponse() {
+        }
+
+        @Override
+        public int getCode() {
+            return code;
+        }
+
+        public Account getAccount() {
+            return account;
+        }
+
+        public void setAccount(Account account) {
+            this.account = account;
+        }
+
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        public String getAccessToken() {
+            return accessToken;
+        }
+
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
         }
     }
 

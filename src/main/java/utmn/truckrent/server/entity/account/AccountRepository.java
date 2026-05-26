@@ -19,6 +19,7 @@ public interface AccountRepository extends GenericRepository<Account, Integer> {
     }
 
     Optional<Account> findByLogin(String login);
+    Optional<Account> findByRefreshToken(String refreshToken);
     List<Account> findAllByRole(Role role);
     List<Account> findAllByDriver(Driver driver);
     List<Account> findAllByPartner(Partner partner);
@@ -35,6 +36,15 @@ public interface AccountRepository extends GenericRepository<Account, Integer> {
                 return Optional.ofNullable(session.createQuery(
                                 "SELECT u FROM Account u WHERE u.login = :login", Account.class)
                         .setParameter("login", login).uniqueResult());
+            }
+        }
+
+        @Override
+        public Optional<Account> findByRefreshToken(String refreshToken) {
+            try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+                return Optional.ofNullable(session.createQuery(
+                                "SELECT u FROM Account u WHERE u.refreshToken = :refreshToken", Account.class)
+                        .setParameter("refreshToken", refreshToken).uniqueResult());
             }
         }
 

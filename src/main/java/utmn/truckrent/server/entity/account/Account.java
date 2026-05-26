@@ -2,12 +2,14 @@ package utmn.truckrent.server.entity.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import ru.vit4liy.jwt.JwtClient;
+import ru.vit4liy.jwt.JwtUser;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.utils.ServiceHash;
 
 @Entity
 @Table(name = "accounts")
-public class Account {
+public class Account implements JwtUser, JwtClient {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq")
     @SequenceGenerator(name = "account_seq", sequenceName = "account_id_seq", allocationSize = 50)
@@ -23,17 +25,16 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//     @OneToOne(mappedBy = "account")
-//     private Driver driver;
-//
-//     @OneToOne(mappedBy = "account")
-//     private Partner partner;
+    @Column(nullable = false)
+    @JsonIgnore
+    private String refreshToken;
 
-    public Account(int accountId, String login, String passwordHash, Role role) {
+    public Account(int accountId, String login, String passwordHash, Role role, String refreshToken) {
         this.accountId = accountId;
         this.login = login;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.refreshToken = refreshToken;
     }
 
     public Account() {
@@ -80,7 +81,25 @@ public class Account {
         this.role = role;
     }
 
-//    public Driver getDriver() {
+    @Override
+    public String getUsername() {
+        return login;
+    }
+
+    @Override
+    public String getTitle() {
+        return login;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    //    public Driver getDriver() {
 //        return driver;
 //    }
 //

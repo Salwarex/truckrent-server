@@ -4,11 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import ru.vit4liy.jwt.JwtExtractException;
+import ru.vit4liy.jwt.JwtManager;
 import utmn.truckrent.server.Application;
 import utmn.truckrent.server.controller.rest.Response;
+import utmn.truckrent.server.entity.ServiceExecutionException;
+import utmn.truckrent.server.entity.account.Account;
+import utmn.truckrent.server.entity.account.AccountService;
+import utmn.truckrent.server.utils.TokenMaster;
 
 public abstract class Controller {
     protected final Javalin app;
+    protected final static JwtManager jwt = Application.getJwtManager();
+    protected final static TokenMaster tokenMaster = Application.getTokenMaster64();
 
     public Controller(Javalin app) {
         this.app = app;
@@ -67,5 +75,44 @@ public abstract class Controller {
 
     protected void answerErr(Context ctx, int httpCode, int apiCode, String description){
         ctx.status(httpCode).json(new Response.Default(apiCode, description));
+    }
+
+
+    private String extractBearerToken(Context ctx) {
+        String header = ctx.header("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return null;
+        }
+        return header.substring(7).trim();
+    }
+
+    protected boolean checkAccess(Context ctx, String token, int requiredLevel) throws ServiceExecutionException {
+        String accessToken = extractBearerToken(ctx);
+
+        if (accessToken == null || accessToken.isBlank()) {
+            answerErr(ctx, 401, 0, "Отсутствует access-token в заголовке 'Access-Token'");
+            return false;
+        }
+
+        JwtManager.JwtExtractResult jwtCheckResult;
+        try{
+            jwtCheckResult = Application.getJwtManager().extractToken(accessToken);
+        } catch (JwtExtractException e) {
+            throw new RuntimeException(e);
+        }
+
+        if(!jwtCheckResult.check()){
+            answerErr(ctx, 401, 0, "Токен устарел");
+            return false;
+        }
+
+        String username = jwtCheckResult.username();
+        Account executor = AccountService.get(username);
+        if(executor == null || executor.getRole().getLevel() <= requiredLevel){
+            answerErr(ctx, 403, 0, "Доступ запрещён!");
+            return false;
+        }
+
+        return true;
     }
 }

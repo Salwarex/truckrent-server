@@ -1,29 +1,29 @@
 package utmn.truckrent.server.entity.account;
 
 import io.javalin.Javalin;
+import ru.vit4liy.jwt.JwtBuildException;
+import ru.vit4liy.jwt.JwtManager;
+import utmn.truckrent.server.Application;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
-import utmn.truckrent.server.entity.driver.Driver;
-import utmn.truckrent.server.entity.driver.DriverService;
-import utmn.truckrent.server.entity.partner.Partner;
-import utmn.truckrent.server.entity.partner.PartnerController;
-import utmn.truckrent.server.entity.partner.PartnerService;
 import utmn.truckrent.server.utils.ListUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 public class AccountController extends Controller {
+    private long ACCESS_TOKEN_TTL = 60 * 60 * 1000L; // 60 минут
+
     public AccountController(Javalin app) {
         super(app);
     }
 
     @Override
     protected void initEndpoints() {
-        post("", ctx -> {
+        post("create", ctx -> {
             String login = ctx.formParam("login");
             String password = ctx.formParam("password");
             String roleStr = ctx.formParam("role");
@@ -33,13 +33,20 @@ public class AccountController extends Controller {
 
             try{
                 Account account = AccountService.register(login, password, role);
-                answerMapping(ctx, 200, 1, account);
+                answerResponse(ctx, 200,
+                        new Response.SuccessAccessResponse(1,
+                                account,
+                                account.getRefreshToken(),
+                                Application.getJwtManager().getToken(account, account, ACCESS_TOKEN_TTL)
+                        ));
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Возникла ошибка при регистрации пользователя: %s".formatted(e.getMessage()));
             }
         }); //создание нового аккаунта
-        get("{id}", ctx -> {
+        get("read/{id}", ctx -> {
             try{
+                if(!checkAccess(ctx, ctx.header("Access-Token"), Role.USER.getLevel())) return;
+
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 Account result = AccountService.get(id);
                 answerMapping(ctx, 200, 1, result);
@@ -53,14 +60,9 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         }); //получение аккаунта
-        put("{id}", ctx -> {
+        put("update/{id}", ctx -> {
             try{
-                int execId = Integer.parseInt(Objects.requireNonNull(ctx.formParam("execId")));
-                Account executor = AccountService.get(execId);
-                if(executor == null || executor.getRole().getLevel() <= 0){
-                    answerErr(ctx, 403, 0, "Доступ запрещён!");
-                    return;
-                }
+                if(!checkAccess(ctx, ctx.header("Access-Token"), Role.ADMIN.getLevel())) return;
 
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 String login = ctx.formParam("login");
@@ -88,14 +90,9 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         }); //внесение изменений
-        delete("{id}", ctx -> {
+        delete("delete/{id}", ctx -> {
             try{
-                int execId = Integer.parseInt(Objects.requireNonNull(ctx.formParam("execId")));
-                Account executor = AccountService.get(execId);
-                if(executor == null || executor.getRole().getLevel() <= 0){
-                    answerErr(ctx, 403, 0, "Доступ запрещён!");
-                    return;
-                }
+                if(!checkAccess(ctx, ctx.header("Access-Token"), Role.ADMIN.getLevel())) return;
 
                 int id = Integer.parseInt(ctx.pathParam("id"));
                 AccountService.delete(id);
@@ -122,7 +119,12 @@ public class AccountController extends Controller {
 
                 Account account = AccountService.get(login);
                 if(account.isPasswordMatch(password)){
-                    answerMapping(ctx, 200, 1, account);
+                    answerResponse(ctx, 200,
+                            new Response.SuccessAccessResponse(1,
+                                    account,
+                                    account.getRefreshToken(),
+                                    Application.getJwtManager().getToken(account, account, ACCESS_TOKEN_TTL)
+                            ));
                 }
                 else{
                     answerErr(ctx, 403, 0, "Неверный логин или пароль!");
@@ -143,24 +145,10 @@ public class AccountController extends Controller {
                 List<List<Account>> lists = new ArrayList<>();
 
                 String roleStr = ctx.queryParam("role");
-                String driverIdStr = ctx.queryParam("driverId");
-                String partnerIdStr = ctx.queryParam("partnerId");
 
                 if(roleStr != null){
                     Role role = Role.valueOf(roleStr);
                     lists.add(AccountService.filterRole(role));
-                }
-                if(driverIdStr != null){
-                    int id = Integer.parseInt(driverIdStr);
-                    Driver driver = DriverService.get(id);
-
-                    lists.add(AccountRepository.getInstance().findAllByDriver(driver));
-                }
-                if(partnerIdStr != null){
-                    int id = Integer.parseInt(partnerIdStr);
-                    Partner partner = PartnerService.get(id);
-
-                    lists.add(AccountRepository.getInstance().findAllByPartner(partner));
                 }
 
                 List<Account> result = new ArrayList<>();
@@ -181,6 +169,54 @@ public class AccountController extends Controller {
                 answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
             }
             catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+
+
+        get("valid-access", ctx -> {
+            String accessToken = ctx.header("Access-Token");
+            if (accessToken == null || accessToken.isBlank()) {
+                answerErr(ctx, 400, 0, "Отсутствует access-token в заголовке 'Access-Token'");
+                return;
+            }
+
+            JwtManager.JwtExtractResult jwtCheckResult = Application.getJwtManager().extractToken(accessToken);
+            String username = jwtCheckResult.username();
+            ctx.json(Map.of(
+                    "owner", username,
+                    "access", jwtCheckResult.check(),
+                    "token_type", "Bearer"
+            ));
+            ctx.status(200);
+        });
+
+        get("refresh", ctx -> {
+            try {
+                String refreshToken = ctx.header("Refresh-Token");
+                if (refreshToken == null || refreshToken.isBlank()) {
+                    answerErr(ctx, 400, 0, "Отсутствует refresh-token в заголовке 'Refresh-Token'");
+                    return;
+                }
+
+                Account account = AccountRepository.AccountRepositoryImpl.instance.findByRefreshToken(refreshToken)
+                        .orElseThrow(() -> new ServiceExecutionException("Аккаунт с указанным refresh-token не найден!"));
+
+                String newAccessToken = Application.getJwtManager().getToken(account, account, ACCESS_TOKEN_TTL);
+
+                ctx.json(Map.of(
+                        "status", 1,
+                        "access_token", newAccessToken,
+                        "token_type", "Bearer",
+                        "expires_in", ACCESS_TOKEN_TTL / 1000 // в секундах
+                ));
+                ctx.status(200);
+
+            } catch (JwtBuildException e) {
+                answerErr(ctx, 500, 0, "Ошибка генерации токена: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });

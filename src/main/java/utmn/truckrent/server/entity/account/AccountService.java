@@ -1,5 +1,6 @@
 package utmn.truckrent.server.entity.account;
 
+import utmn.truckrent.server.Application;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.entity.ServiceExecutionException;
 
@@ -24,6 +25,7 @@ public class AccountService {
         account.setLogin(login);
         account.setPassword(password);
         account.setRole(role == null ? Role.USER : role);
+        account.setRefreshToken(Application.getTokenMaster64().generate());
 
         return repository.save(account);
     }
