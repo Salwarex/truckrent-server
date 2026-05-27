@@ -159,11 +159,11 @@ public class DeliveryController extends Controller {
 
                 List<List<Delivery>> lists = new ArrayList<>();
 
-                String driverIdStr = ctx.queryParam("driver");
-                String senderIdStr = ctx.queryParam("sender");
-                String receiverIdStr = ctx.queryParam("receiver");
-                String containerIdStr = ctx.queryParam("container");
-                String truckIdStr = ctx.queryParam("truck");
+                String driverIdStr = ctx.queryParam("driverId");
+                String senderIdStr = ctx.queryParam("senderId");
+                String receiverIdStr = ctx.queryParam("receiverId");
+                String containerIdStr = ctx.queryParam("containerId");
+                String truckIdStr = ctx.queryParam("truckId");
                 String loadedUntilTimestampStr = ctx.queryParam("loadedUntil");
                 String loadedAfterTimestampStr = ctx.queryParam("loadedAfter");
                 String unloadedUntilTimestampStr = ctx.queryParam("unloadedUntil");

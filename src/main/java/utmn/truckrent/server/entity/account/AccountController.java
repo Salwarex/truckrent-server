@@ -173,24 +173,6 @@ public class AccountController extends Controller {
             }
         });
 
-
-        get("valid-access", ctx -> {
-            String accessToken = ctx.header("Access-Token");
-            if (accessToken == null || accessToken.isBlank()) {
-                answerErr(ctx, 400, 0, "Отсутствует access-token в заголовке 'Access-Token'");
-                return;
-            }
-
-            JwtManager.JwtExtractResult jwtCheckResult = Application.getJwtManager().extractToken(accessToken);
-            String username = jwtCheckResult.username();
-            ctx.json(Map.of(
-                    "owner", username,
-                    "access", jwtCheckResult.check(),
-                    "token_type", "Bearer"
-            ));
-            ctx.status(200);
-        });
-
         get("refresh", ctx -> {
             try {
                 String refreshToken = ctx.header("Refresh-Token");

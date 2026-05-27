@@ -7,10 +7,6 @@ import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
 import utmn.truckrent.server.entity.account.Account;
 import utmn.truckrent.server.entity.account.AccountService;
-import utmn.truckrent.server.entity.driver.Driver;
-import utmn.truckrent.server.entity.driver.DriverService;
-import utmn.truckrent.server.entity.finance.Finance;
-import utmn.truckrent.server.entity.finance.FinanceRepository;
 import utmn.truckrent.server.utils.ListUtils;
 
 import java.util.ArrayList;
@@ -138,19 +134,19 @@ public class PartnerController extends Controller {
                 if(title != null){
                     lists.add(PartnerRepository.PartnerRepositoryImpl.instance.findAllByTitle(title));
                 }
-                String phone = ctx.queryParam("phone");
+                String phone = ctx.queryParam("contactPhone");
                 if(phone != null){
                     lists.add(PartnerRepository.PartnerRepositoryImpl.instance.findAllByPhone(phone));
                 }
-                String email = ctx.queryParam("email");
+                String email = ctx.queryParam("contactEmail");
                 if(email != null){
                     lists.add(PartnerRepository.PartnerRepositoryImpl.instance.findAllByEmail(email));
                 }
-                String contactName = ctx.queryParam("contact_name");
+                String contactName = ctx.queryParam("contactName");
                 if(contactName != null){
                     lists.add(PartnerRepository.PartnerRepositoryImpl.instance.findAllByContactName(contactName));
                 }
-                String accountIdStr = ctx.queryParam("account");
+                String accountIdStr = ctx.queryParam("accountId");
                 if(accountIdStr != null){
                     Account account = AccountService.get(Integer.parseInt(accountIdStr));
                     lists.add(PartnerRepository.PartnerRepositoryImpl.instance.findAllByAccount(account));

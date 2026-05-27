@@ -29,7 +29,7 @@ public class FinanceController extends Controller {
             try{
                 if(!checkAccess(ctx, ctx.header("Access-Token"), Role.ADMIN.getLevel())) return;
 
-                Integer driverId = Integer.valueOf(Objects.requireNonNull(ctx.formParam("accountId")));
+                Integer driverId = Integer.valueOf(Objects.requireNonNull(ctx.formParam("driverId")));
                 BigDecimal income = BigDecimal.valueOf(Long.parseLong(Objects.requireNonNull(ctx.formParam("income"))));
                 BigDecimal outcome = BigDecimal.valueOf(Long.parseLong(Objects.requireNonNull(ctx.formParam("outcome"))));
 
@@ -133,7 +133,7 @@ public class FinanceController extends Controller {
 
                 List<List<Finance>> lists = new ArrayList<>();
 
-                String driverIdStr = ctx.queryParam("driver");
+                String driverIdStr = ctx.queryParam("driverId");
 
                 if(driverIdStr != null){
                     Driver driver = DriverService.get(Integer.parseInt(driverIdStr));

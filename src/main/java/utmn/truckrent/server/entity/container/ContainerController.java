@@ -116,7 +116,7 @@ public class ContainerController extends Controller {
 
                 List<List<Container>> lists = new ArrayList<>();
 
-                String trademarkIdStr = ctx.queryParam("trademark");
+                String trademarkIdStr = ctx.queryParam("trademarkId");
 
                 if(trademarkIdStr != null){
                     TradeMark tradeMark = TradeMarkService.get(Integer.parseInt(trademarkIdStr));

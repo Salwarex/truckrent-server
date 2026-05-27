@@ -27,7 +27,7 @@ public class TruckController extends Controller {
             try{
                 if(!checkAccess(ctx, ctx.header("Access-Token"), Role.ADMIN.getLevel())) return;
 
-                String truckMarkIdValue = ctx.formParam("truckMarkId");
+                String truckMarkIdValue = ctx.formParam("truckmarkId");
                 String loadCapacityKgValue = ctx.formParam("loadCapacityKg");
 
                 int truckMarkId = Integer.parseInt(Objects.requireNonNull(truckMarkIdValue));
@@ -128,7 +128,7 @@ public class TruckController extends Controller {
 
                 List<List<Truck>> lists = new ArrayList<>();
 
-                String truckmarkIdStr = ctx.queryParam("truckmark");
+                String truckmarkIdStr = ctx.queryParam("truckmarkId");
                 String loadLessStr = ctx.queryParam("capacity_less");
                 String loadMoreStr = ctx.queryParam("capacity_more");
 
