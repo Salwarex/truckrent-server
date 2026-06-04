@@ -1,6 +1,7 @@
 package utmn.truckrent.server.entity.delivery;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
@@ -66,12 +67,9 @@ public class DeliveryController extends Controller {
                     );
                 }
 
-                try{
-                    Delivery result = DeliveryService.register(sender, receiver, driver, container, truck, loadedDate, unloadedDate);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Delivery delivery = createObject(ctx, sender, receiver, driver, container, truck, loadedDate, unloadedDate);
+                if(delivery == null) return;
+                answerMapping(ctx, 200, 1, delivery);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -306,10 +304,85 @@ public class DeliveryController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawDelivery> rawDeliveries = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawDelivery>>() {}.getType()
+                );
+
+                List<Delivery> createdDeliveries = new ArrayList<>();
+
+                for (RawDelivery raw : rawDeliveries) {
+                    Partner sender = PartnerService.get(raw.getSenderId());
+                    Partner receiver = PartnerService.get(raw.getReceiverId());
+                    Driver driver = DriverService.get(raw.getDriverId());
+                    Container container = ContainerService.get(raw.getContainerId());
+                    Truck truck = TruckService.get(raw.getTruckId());
+
+                    LocalDateTime loadedDate = null;
+                    if (raw.getLoadedDate() != null) {
+                        loadedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(raw.getLoadedDate()), ZoneId.systemDefault());
+                    }
+
+                    LocalDateTime unloadedDate = null;
+                    if (raw.getUnloadedDate() != null) {
+                        unloadedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(raw.getUnloadedDate()), ZoneId.systemDefault());
+                    }
+
+                    Delivery delivery = createObject(ctx, sender, receiver, driver, container, truck, loadedDate, unloadedDate);
+                    if (delivery != null) createdDeliveries.add(delivery);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdDeliveries));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Delivery createObject(Context ctx, Partner sender, Partner receiver, Driver driver, Container container, Truck truck, LocalDateTime loadedDate, LocalDateTime unloadedDate) {
+        try{
+            return DeliveryService.register(sender, receiver, driver, container, truck, loadedDate, unloadedDate);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "delivery";
+    }
+
+    public static class RawDelivery {
+        private Integer senderId;
+        private Integer receiverId;
+        private Integer driverId;
+        private Integer containerId;
+        private Integer truckId;
+        private Long loadedDate;
+        private Long unloadedDate;
+
+        public Integer getSenderId() { return senderId; }
+        public void setSenderId(Integer senderId) { this.senderId = senderId; }
+        public Integer getReceiverId() { return receiverId; }
+        public void setReceiverId(Integer receiverId) { this.receiverId = receiverId; }
+        public Integer getDriverId() { return driverId; }
+        public void setDriverId(Integer driverId) { this.driverId = driverId; }
+        public Integer getContainerId() { return containerId; }
+        public void setContainerId(Integer containerId) { this.containerId = containerId; }
+        public Integer getTruckId() { return truckId; }
+        public void setTruckId(Integer truckId) { this.truckId = truckId; }
+        public Long getLoadedDate() { return loadedDate; }
+        public void setLoadedDate(Long loadedDate) { this.loadedDate = loadedDate; }
+        public Long getUnloadedDate() { return unloadedDate; }
+        public void setUnloadedDate(Long unloadedDate) { this.unloadedDate = unloadedDate; }
     }
 }

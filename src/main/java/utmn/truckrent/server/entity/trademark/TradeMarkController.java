@@ -1,6 +1,7 @@
 package utmn.truckrent.server.entity.trademark;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
@@ -31,12 +32,9 @@ public class TradeMarkController extends Controller {
 
                 String title = ctx.formParam("title");
 
-                try{
-                    TradeMark result = TradeMarkService.register(title);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                TradeMark tradeMark = createObject(ctx, title);
+                if(tradeMark == null) return;
+                answerMapping(ctx, 200, 1, tradeMark);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -154,10 +152,49 @@ public class TradeMarkController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawTradeMark> rawTradeMarks = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawTradeMark>>() {}.getType()
+                );
+
+                List<TradeMark> createdTradeMarks = new ArrayList<>();
+
+                for (RawTradeMark raw : rawTradeMarks) {
+                    TradeMark tradeMark = createObject(ctx, raw.getTitle());
+                    if (tradeMark != null) createdTradeMarks.add(tradeMark);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdTradeMarks));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }  catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private TradeMark createObject(Context ctx, String title) {
+        try{
+            return TradeMarkService.register(title);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "trademark";
+    }
+
+    public static class RawTradeMark {
+        private String title;
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
     }
 }

@@ -1,22 +1,15 @@
 package utmn.truckrent.server.entity.truckmark;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
-import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.account.AccountRepository;
-import utmn.truckrent.server.entity.account.AccountService;
-import utmn.truckrent.server.entity.trademark.TradeMark;
-import utmn.truckrent.server.entity.trademark.TradeMarkRepository;
-import utmn.truckrent.server.entity.trademark.TradeMarkService;
-import utmn.truckrent.server.entity.truck.Truck;
 import utmn.truckrent.server.utils.ListUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TruckMarkController extends Controller {
     public TruckMarkController(Javalin app) {
@@ -31,12 +24,9 @@ public class TruckMarkController extends Controller {
 
                 String title = ctx.formParam("title");
 
-                try{
-                    TruckMark result = TruckMarkService.register(title);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                TruckMark truckMark = createObject(ctx, title);
+                if(truckMark == null) return;
+                answerMapping(ctx, 200, 1, truckMark);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -155,10 +145,49 @@ public class TruckMarkController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawTruckMark> rawTruckMarks = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawTruckMark>>() {}.getType()
+                );
+
+                List<TruckMark> createdTruckMarks = new ArrayList<>();
+
+                for (RawTruckMark raw : rawTruckMarks) {
+                    TruckMark truckMark = createObject(ctx, raw.getTitle());
+                    if (truckMark != null) createdTruckMarks.add(truckMark);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdTruckMarks));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private TruckMark createObject(Context ctx, String title) {
+        try{
+            return TruckMarkService.register(title);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "truckmark";
+    }
+
+    public static class RawTruckMark {
+        private String title;
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
     }
 }

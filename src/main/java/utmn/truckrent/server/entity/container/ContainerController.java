@@ -1,13 +1,11 @@
 package utmn.truckrent.server.entity.container;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
-import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.account.AccountRepository;
-import utmn.truckrent.server.entity.account.AccountService;
 import utmn.truckrent.server.entity.trademark.TradeMark;
 import utmn.truckrent.server.entity.trademark.TradeMarkService;
 import utmn.truckrent.server.utils.ListUtils;
@@ -30,12 +28,8 @@ public class ContainerController extends Controller {
                 Integer trademarkId = Integer.valueOf(Objects.requireNonNull(ctx.formParam("trademarkId")));
                 TradeMark tradeMark = TradeMarkService.get(trademarkId);
 
-                try{
-                    Container account = ContainerService.register(tradeMark);
-                    answerMapping(ctx, 200, 1, account);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Container container = createObject(ctx, tradeMark);
+                answerMapping(ctx, 200, 1, container);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -159,10 +153,52 @@ public class ContainerController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawContainer> rawContainers = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawContainer>>() {}.getType()
+                );
+
+                List<Container> createdContainers = new ArrayList<>();
+
+                for (RawContainer raw : rawContainers) {
+                    TradeMark tradeMark = TradeMarkService.get(raw.getTrademarkId());
+                    Container container = createObject(ctx, tradeMark);
+                    if (container != null) createdContainers.add(container);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdContainers));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Container createObject(Context ctx, TradeMark tradeMark) {
+        try{
+            return ContainerService.register(tradeMark);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "container";
+    }
+
+    public static class RawContainer {
+        private Integer trademarkId;
+
+        public Integer getTrademarkId() { return trademarkId; }
+        public void setTrademarkId(Integer trademarkId) { this.trademarkId = trademarkId; }
     }
 }

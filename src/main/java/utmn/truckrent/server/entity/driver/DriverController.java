@@ -1,6 +1,7 @@
 package utmn.truckrent.server.entity.driver;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
@@ -32,12 +33,9 @@ public class DriverController extends Controller {
 
                 Account account = AccountService.get(accountId);
 
-                try{
-                    Driver result = DriverService.register(surname, name, lastname, account);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Driver driver = createObject(ctx, surname, name, lastname, account);
+                if(driver == null) return;
+                answerMapping(ctx, 200, 1, driver);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -182,10 +180,61 @@ public class DriverController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawDriver> rawDrivers = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawDriver>>() {}.getType()
+                );
+
+                List<Driver> createdDrivers = new ArrayList<>();
+
+                for (RawDriver raw : rawDrivers) {
+                    Account account = AccountService.get(raw.getAccountId());
+                    Driver driver = createObject(ctx, raw.getSurname(), raw.getName(), raw.getLastname(), account);
+                    if (driver != null) createdDrivers.add(driver);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdDrivers));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Driver createObject(Context ctx, String surname, String name, String lastname, Account account) {
+        try{
+            return DriverService.register(surname, name, lastname, account);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "driver";
+    }
+
+    public static class RawDriver {
+        private String surname;
+        private String name;
+        private String lastname;
+        private Integer accountId;
+
+        public String getSurname() { return surname; }
+        public void setSurname(String surname) { this.surname = surname; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getLastname() { return lastname; }
+        public void setLastname(String lastname) { this.lastname = lastname; }
+        public Integer getAccountId() { return accountId; }
+        public void setAccountId(Integer accountId) { this.accountId = accountId; }
     }
 }

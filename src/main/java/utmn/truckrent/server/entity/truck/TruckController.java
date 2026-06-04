@@ -1,6 +1,7 @@
 package utmn.truckrent.server.entity.truck;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
@@ -36,12 +37,9 @@ public class TruckController extends Controller {
 
                 TruckMark truckMark = TruckMarkService.get(truckMarkId);
 
-                try{
-                    Truck result = TruckService.register(truckMark, loadCapacityKg);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Truck truck = createObject(ctx, truckMark, loadCapacityKg);
+                if(truck == null) return;
+                answerMapping(ctx, 200, 1, truck);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -182,10 +180,55 @@ public class TruckController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawTruck> rawTrucks = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawTruck>>() {}.getType()
+                );
+
+                List<Truck> createdTrucks = new ArrayList<>();
+
+                for (RawTruck raw : rawTrucks) {
+                    TruckMark truckMark = TruckMarkService.get(raw.getTruckmarkId());
+                    Truck truck = createObject(ctx, truckMark, raw.getLoadCapacityKg());
+                    if (truck != null) createdTrucks.add(truck);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdTrucks));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Truck createObject(Context ctx, TruckMark truckMark, int loadCapacityKg) {
+        try{
+            return TruckService.register(truckMark, loadCapacityKg);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "truck";
+    }
+
+    public static class RawTruck {
+        private Integer truckmarkId;
+        private Integer loadCapacityKg;
+
+        public Integer getTruckmarkId() { return truckmarkId; }
+        public void setTruckmarkId(Integer truckmarkId) { this.truckmarkId = truckmarkId; }
+        public Integer getLoadCapacityKg() { return loadCapacityKg; }
+        public void setLoadCapacityKg(Integer loadCapacityKg) { this.loadCapacityKg = loadCapacityKg; }
     }
 }

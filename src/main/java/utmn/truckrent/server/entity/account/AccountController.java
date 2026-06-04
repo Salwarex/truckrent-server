@@ -1,8 +1,8 @@
 package utmn.truckrent.server.entity.account;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import ru.vit4liy.jwt.JwtBuildException;
-import ru.vit4liy.jwt.JwtManager;
 import utmn.truckrent.server.Application;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
@@ -31,17 +31,13 @@ public class AccountController extends Controller {
             Role role = null;
             if(roleStr != null) role = Role.valueOf(roleStr);
 
-            try{
-                Account account = AccountService.register(login, password, role);
-                answerResponse(ctx, 200,
-                        new Response.SuccessAccessResponse(1,
-                                account,
-                                account.getRefreshToken(),
-                                Application.getJwtManager().getToken(account, account, ACCESS_TOKEN_TTL)
-                        ));
-            }catch (ServiceExecutionException e){
-                answerErr(ctx, 500, 0, "Возникла ошибка при регистрации пользователя: %s".formatted(e.getMessage()));
-            }
+            Account account = createObject(ctx, login, password, role);
+            answerResponse(ctx, 200,
+                    new Response.SuccessAccessResponse(1,
+                            account,
+                            account.getRefreshToken(),
+                            Application.getJwtManager().getToken(account, account, ACCESS_TOKEN_TTL)
+                    ));
         }); //создание нового аккаунта
         get("read/{id}", ctx -> {
             try{
@@ -116,6 +112,8 @@ public class AccountController extends Controller {
 
                 if(login == null || password == null)
                     answerErr(ctx, 400, 0, "Неккоректные параметры запроса: Логин или пароль пусты!");
+
+                System.out.printf("[AUTH] Provided login: \"%s\", Provided password: \"%s\"", login, password);
 
                 Account account = AccountService.get(login);
                 if(account.isPasswordMatch(password)){
@@ -218,12 +216,58 @@ public class AccountController extends Controller {
         });
 
         post("createAll", ctx -> {
+            try {
+                List<RawAccount> rawAccounts = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawAccount>>() {}.getType()
+                );
 
+                List<Account> createdAccounts = new ArrayList<>();
+
+                for (RawAccount raw : rawAccounts) {
+                    Role role = null;
+                    if (raw.getRole() != null && !raw.getRole().isBlank()) {
+                        role = Role.valueOf(raw.getRole());
+                    }
+
+                    Account account = createObject(ctx, raw.getLogin(), raw.getPassword(), role);
+                    if(account != null) createdAccounts.add(account);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdAccounts));
+
+            } catch (IllegalArgumentException e) {
+                answerErr(ctx, 400, 0, "Некорректное значение роли в одном из аккаунтов: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
         });
+    }
+
+    private Account createObject(Context ctx, String login, String password, Role role){
+        try{
+            return AccountService.register(login, password, role);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации пользователя: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "account";
+    }
+
+    public static class RawAccount {
+        private String login;
+        private String password;
+        private String role;
+
+        public String getLogin() { return login; }
+        public void setLogin(String login) { this.login = login; }
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
     }
 }

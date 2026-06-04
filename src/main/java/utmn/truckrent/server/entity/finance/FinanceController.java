@@ -1,6 +1,7 @@
 package utmn.truckrent.server.entity.finance;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
@@ -31,12 +32,9 @@ public class FinanceController extends Controller {
 
                 Driver driver = DriverService.get(driverId);
 
-                try{
-                    Finance result = FinanceService.register(driver, income, outcome);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Finance finance = createObject(ctx, driver, income, outcome);
+                if(finance == null) return;
+                answerMapping(ctx, 200, 1, finance);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -171,10 +169,58 @@ public class FinanceController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawFinance> rawFinances = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawFinance>>() {}.getType()
+                );
+
+                List<Finance> createdFinances = new ArrayList<>();
+
+                for (RawFinance raw : rawFinances) {
+                    Driver driver = DriverService.get(raw.getDriverId());
+                    Finance finance = createObject(ctx, driver, BigDecimal.valueOf(raw.getIncome()), BigDecimal.valueOf(raw.getOutcome()));
+                    if (finance != null) createdFinances.add(finance);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdFinances));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Finance createObject(Context ctx, Driver driver, BigDecimal income, BigDecimal outcome) {
+        try{
+            return FinanceService.register(driver, income, outcome);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "finance";
+    }
+
+    public static class RawFinance {
+        private Integer driverId;
+        private Long income;
+        private Long outcome;
+
+        public Integer getDriverId() { return driverId; }
+        public void setDriverId(Integer driverId) { this.driverId = driverId; }
+        public Long getIncome() { return income; }
+        public void setIncome(Long income) { this.income = income; }
+        public Long getOutcome() { return outcome; }
+        public void setOutcome(Long outcome) { this.outcome = outcome; }
     }
 }

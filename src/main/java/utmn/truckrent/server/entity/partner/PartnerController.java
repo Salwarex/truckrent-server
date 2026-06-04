@@ -1,12 +1,12 @@
 package utmn.truckrent.server.entity.partner;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
 import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.account.AccountRepository;
 import utmn.truckrent.server.entity.account.AccountService;
 import utmn.truckrent.server.utils.ListUtils;
 
@@ -35,12 +35,9 @@ public class PartnerController extends Controller {
 
                 Account account = AccountService.get(accountId);
 
-                try{
-                    Partner result = PartnerService.register(title, contactPhone, contactEmail, contactName, account);
-                    answerMapping(ctx, 200, 1, result);
-                }catch (ServiceExecutionException e){
-                    answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
-                }
+                Partner partner = createObject(ctx, title, contactPhone, contactEmail, contactName, account);
+                if(partner == null) return;
+                answerMapping(ctx, 200, 1, partner);
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
             }
@@ -188,10 +185,64 @@ public class PartnerController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        post("createAll", ctx -> {
+            try {
+                List<RawPartner> rawPartners = ctx.bodyAsClass(
+                        new com.fasterxml.jackson.core.type.TypeReference<List<RawPartner>>() {}.getType()
+                );
+
+                List<Partner> createdPartners = new ArrayList<>();
+
+                for (RawPartner raw : rawPartners) {
+                    Account account = AccountService.get(raw.getAccountId());
+                    Partner partner = createObject(ctx, raw.getTitle(), raw.getContactPhone(), raw.getContactEmail(), raw.getContactName(), account);
+                    if (partner != null) createdPartners.add(partner);
+                    else return;
+                }
+
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, createdPartners));
+
+            } catch (NumberFormatException e) {
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            } catch (ServiceExecutionException e) {
+                answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            } catch (Exception e) {
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+    }
+
+    private Partner createObject(Context ctx, String title, String contactPhone, String contactEmail, String contactName, Account account) {
+        try{
+            return PartnerService.register(title, contactPhone, contactEmail, contactName, account);
+        }catch (ServiceExecutionException e){
+            answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
+            return null;
+        }
     }
 
     @Override
     protected String path() {
         return "partner";
+    }
+
+    public static class RawPartner {
+        private String title;
+        private String contactPhone;
+        private String contactEmail;
+        private String contactName;
+        private Integer accountId;
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getContactPhone() { return contactPhone; }
+        public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+        public String getContactEmail() { return contactEmail; }
+        public void setContactEmail(String contactEmail) { this.contactEmail = contactEmail; }
+        public String getContactName() { return contactName; }
+        public void setContactName(String contactName) { this.contactName = contactName; }
+        public Integer getAccountId() { return accountId; }
+        public void setAccountId(Integer accountId) { this.accountId = accountId; }
     }
 }

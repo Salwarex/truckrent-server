@@ -83,11 +83,13 @@ public class Account implements JwtUser, JwtClient {
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return login;
     }
 
     @Override
+    @JsonIgnore
     public String getTitle() {
         return login;
     }
