@@ -6,6 +6,7 @@ import utmn.truckrent.server.entity.trademark.TradeMark;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "containers")
@@ -17,14 +18,9 @@ public class Container {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trademarkId", nullable = false)
     private TradeMark tradeMark;
-
-//    @OneToMany(mappedBy = "container", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    private List<Delivery> deliveries = new ArrayList<>();
-
     public Container(int containerId, TradeMark tradeMark) {
         this.containerId = containerId;
         this.tradeMark = tradeMark;
-        //this.deliveries = deliveries;
     }
 
     public Container() {
@@ -46,11 +42,16 @@ public class Container {
         this.tradeMark = tradeMark;
     }
 
-//    public List<Delivery> getDeliveries() {
-//        return deliveries;
-//    }
-//
-//    public void setDeliveries(List<Delivery> deliveries) {
-//        this.deliveries = deliveries;
-//    }
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Container container = (Container) object;
+        return containerId == container.containerId && Objects.equals(tradeMark, container.tradeMark);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(containerId, tradeMark);
+    }
 }

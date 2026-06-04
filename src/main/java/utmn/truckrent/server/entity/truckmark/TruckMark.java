@@ -5,6 +5,7 @@ import utmn.truckrent.server.entity.truck.Truck;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "truckmarks")
@@ -16,13 +17,9 @@ public class TruckMark {
     @Column(nullable = false)
     private String title;
 
-//    @OneToMany(mappedBy = "truckmark", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    private List<Truck> trucks = new ArrayList<>();
-
     public TruckMark(int truckmarkId, String title) {
         this.truckmarkId = truckmarkId;
         this.title = title;
-//        this.trucks = trucks;
     }
 
     public TruckMark() {
@@ -44,11 +41,16 @@ public class TruckMark {
         this.title = title;
     }
 
-//    public List<Truck> getTrucks() {
-//        return trucks;
-//    }
-//
-//    public void setTrucks(List<Truck> trucks) {
-//        this.trucks = trucks;
-//    }
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        TruckMark truckMark = (TruckMark) object;
+        return truckmarkId == truckMark.truckmarkId && Objects.equals(title, truckMark.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(truckmarkId, title);
+    }
 }

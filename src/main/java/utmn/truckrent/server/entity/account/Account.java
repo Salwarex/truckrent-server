@@ -7,12 +7,13 @@ import ru.vit4liy.jwt.JwtUser;
 import utmn.truckrent.server.Role;
 import utmn.truckrent.server.utils.ServiceHash;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "accounts")
 public class Account implements JwtUser, JwtClient {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq")
-    @SequenceGenerator(name = "account_seq", sequenceName = "account_id_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int accountId;
 
     @Column(nullable = false, unique = true)
@@ -99,19 +100,16 @@ public class Account implements JwtUser, JwtClient {
         this.refreshToken = refreshToken;
     }
 
-    //    public Driver getDriver() {
-//        return driver;
-//    }
-//
-//    public void setDriver(Driver driver) {
-//        this.driver = driver;
-//    }
-//
-//    public Partner getPartner() {
-//        return partner;
-//    }
-//
-//    public void setPartner(Partner partner) {
-//        this.partner = partner;
-//    }
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Account account = (Account) object;
+        return accountId == account.accountId && Objects.equals(login, account.login) && Objects.equals(passwordHash, account.passwordHash) && role == account.role && Objects.equals(refreshToken, account.refreshToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId, login, passwordHash, role, refreshToken);
+    }
 }

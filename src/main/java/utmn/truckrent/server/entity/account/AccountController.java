@@ -202,6 +202,24 @@ public class AccountController extends Controller {
                 answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
             }
         });
+
+        get("all", ctx -> {
+            try{
+                List<Account> result = new ArrayList<>();
+                result = AccountRepository.getInstance().findAll();
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
+            }
+            catch (NumberFormatException e){
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+
+        post("createAll", ctx -> {
+
+        });
     }
 
     @Override

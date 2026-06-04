@@ -108,7 +108,7 @@ public abstract class Controller {
 
         String username = jwtCheckResult.username();
         Account executor = AccountService.get(username);
-        if(executor == null || executor.getRole().getLevel() <= requiredLevel){
+        if(executor == null || executor.getRole().getLevel() < requiredLevel){
             answerErr(ctx, 403, 0, "Доступ запрещён!");
             return false;
         }

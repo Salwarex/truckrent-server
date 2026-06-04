@@ -64,6 +64,7 @@ public interface Response {
         private String accessToken;
 
         public SuccessAccessResponse(int code, Account account, String refreshToken, String accessToken) {
+            this.code = code;
             this.account = account;
             this.refreshToken = refreshToken;
             this.accessToken = accessToken;

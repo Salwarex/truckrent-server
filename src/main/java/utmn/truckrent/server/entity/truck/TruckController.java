@@ -6,6 +6,7 @@ import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
 import utmn.truckrent.server.entity.account.Account;
+import utmn.truckrent.server.entity.account.AccountRepository;
 import utmn.truckrent.server.entity.account.AccountService;
 import utmn.truckrent.server.entity.truckmark.TruckMark;
 import utmn.truckrent.server.entity.truckmark.TruckMarkRepository;
@@ -142,7 +143,7 @@ public class TruckController extends Controller {
                 }
                 if(loadMoreStr != null){
                     int loadMore = Integer.parseInt(loadMoreStr);
-                    lists.add(TruckRepository.TruckRepositoryImpl.instance.findAllByLoadCapacityLess(loadMore));
+                    lists.add(TruckRepository.TruckRepositoryImpl.instance.findAllByLoadCapacityMore(loadMore));
                 }
 
                 List<Truck> result = new ArrayList<>();
@@ -159,6 +160,20 @@ public class TruckController extends Controller {
             }
             catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            }
+            catch (NumberFormatException e){
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+
+        get("all", ctx -> {
+            try{
+                List<Truck> result = new ArrayList<>();
+                result = TruckRepository.getInstance().findAll();
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
             }
             catch (NumberFormatException e){
                 answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));

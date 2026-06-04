@@ -6,6 +6,7 @@ import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
 import utmn.truckrent.server.entity.account.Account;
+import utmn.truckrent.server.entity.account.AccountRepository;
 import utmn.truckrent.server.entity.account.AccountService;
 import utmn.truckrent.server.utils.ListUtils;
 
@@ -159,6 +160,20 @@ public class DriverController extends Controller {
 
             }catch (ServiceExecutionException e){
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            }
+            catch (NumberFormatException e){
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+
+        get("all", ctx -> {
+            try{
+                List<Driver> result = new ArrayList<>();
+                result = DriverRepository.getInstance().findAll();
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
             }
             catch (NumberFormatException e){
                 answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));

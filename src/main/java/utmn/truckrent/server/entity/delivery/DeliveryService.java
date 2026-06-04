@@ -6,6 +6,8 @@ import utmn.truckrent.server.entity.driver.Driver;
 import utmn.truckrent.server.entity.partner.Partner;
 import utmn.truckrent.server.entity.truck.Truck;
 
+import java.time.LocalDateTime;
+
 public class DeliveryService {
     private static final DeliveryRepository.DeliveryRepositoryImpl repository = DeliveryRepository.getInstance();
 
@@ -15,7 +17,10 @@ public class DeliveryService {
             Partner receiver,
             Driver driver,
             Container container,
-            Truck truck) throws ServiceExecutionException {
+            Truck truck,
+            LocalDateTime loadedDate,
+            LocalDateTime unloadedDate
+    ) throws ServiceExecutionException {
         Delivery delivery = new Delivery();
         if(sender == null
                 || receiver == null || driver == null || container == null || truck == null)
@@ -26,6 +31,8 @@ public class DeliveryService {
         delivery.setDriver(driver);
         delivery.setContainer(container);
         delivery.setTruck(truck);
+        if(loadedDate != null) delivery.setLoadedDate(loadedDate);
+        if(unloadedDate != null) delivery.setUnloadedDate(unloadedDate);
 
         return repository.save(delivery);
     }

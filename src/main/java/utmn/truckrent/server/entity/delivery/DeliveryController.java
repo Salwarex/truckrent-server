@@ -5,8 +5,6 @@ import utmn.truckrent.server.Role;
 import utmn.truckrent.server.controller.Controller;
 import utmn.truckrent.server.controller.rest.Response;
 import utmn.truckrent.server.entity.ServiceExecutionException;
-import utmn.truckrent.server.entity.account.Account;
-import utmn.truckrent.server.entity.account.AccountService;
 import utmn.truckrent.server.entity.container.Container;
 import utmn.truckrent.server.entity.container.ContainerService;
 import utmn.truckrent.server.entity.driver.Driver;
@@ -20,11 +18,14 @@ import utmn.truckrent.server.utils.ListUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class DeliveryController extends Controller {
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE;
+
     public DeliveryController(Javalin app) {
         super(app);
     }
@@ -41,14 +42,32 @@ public class DeliveryController extends Controller {
                 Integer containerId = Integer.valueOf(Objects.requireNonNull(ctx.formParam("containerId")));
                 Integer truckId = Integer.valueOf(Objects.requireNonNull(ctx.formParam("truckId")));
 
+                String loadedDateStr = ctx.queryParam("loadedDate");
+                String unloadedDateStr = ctx.queryParam("unloadedDate");
+
                 Partner sender = PartnerService.get(senderId);
                 Partner receiver = PartnerService.get(receiverId);
                 Driver driver = DriverService.get(driverId);
                 Container container = ContainerService.get(containerId);
                 Truck truck = TruckService.get(truckId);
+                LocalDateTime loadedDate = null;
+                LocalDateTime unloadedDate = null;
+
+                if(loadedDateStr != null){
+                    loadedDate = LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(Long.parseLong(loadedDateStr)),
+                            ZoneId.systemDefault()
+                    );
+                }
+                if(unloadedDateStr != null){
+                    unloadedDate = LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(Long.parseLong(unloadedDateStr)),
+                            ZoneId.systemDefault()
+                    );
+                }
 
                 try{
-                    Delivery result = DeliveryService.register(sender, receiver, driver, container, truck);
+                    Delivery result = DeliveryService.register(sender, receiver, driver, container, truck, loadedDate, unloadedDate);
                     answerMapping(ctx, 200, 1, result);
                 }catch (ServiceExecutionException e){
                     answerErr(ctx, 500, 0, "Возникла ошибка при регистрации объекта: %s".formatted(e.getMessage()));
@@ -92,6 +111,8 @@ public class DeliveryController extends Controller {
                 String valueDriverId = ctx.formParam("driverId");
                 String valueContainerId = ctx.formParam("containerId");
                 String valueTruckId = ctx.formParam("truckId");
+                String loadedDateStr = ctx.queryParam("loadedDate");
+                String unloadedDateStr = ctx.queryParam("unloadedDate");
 
                 if(valueSenderId != null){
                     Integer senderId = Integer.valueOf(valueSenderId);
@@ -118,7 +139,20 @@ public class DeliveryController extends Controller {
                     Truck truck = TruckService.get(truckId);
                     object.setTruck(truck);
                 }
-                //todo: ДАТЫ
+                if(loadedDateStr != null){
+                    LocalDateTime loadedDate = LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(Long.parseLong(loadedDateStr)),
+                            ZoneId.systemDefault()
+                    );
+                    object.setLoadedDate(loadedDate);
+                }
+                if(unloadedDateStr != null){
+                    LocalDateTime unloadedDate = LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(Long.parseLong(unloadedDateStr)),
+                            ZoneId.systemDefault()
+                    );
+                    object.setUnloadedDate(unloadedDate);
+                }
 
                 Delivery result = DeliveryService.update(object);
 
@@ -190,31 +224,47 @@ public class DeliveryController extends Controller {
                     lists.add(DeliveryRepository.DeliveryRepositoryImpl.instance.findAllByTruck(truck));
                 }
                 if(loadedUntilTimestampStr != null){
+                    System.out.printf("Provided Timestamp: %s%n", loadedUntilTimestampStr);
+
                     LocalDateTime loadedUntil = LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(Long.parseLong(loadedUntilTimestampStr)),
                             ZoneId.systemDefault()
                     );
+
+                    System.out.println(FORMATTER.format(loadedUntil));
                     lists.add(DeliveryRepository.DeliveryRepositoryImpl.instance.findAllLoadedUntil(loadedUntil));
                 }
                 if(loadedAfterTimestampStr != null){
+                    System.out.printf("Provided Timestamp: %s%n", loadedAfterTimestampStr);
+
                     LocalDateTime loadedAfter = LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(Long.parseLong(loadedAfterTimestampStr)),
                             ZoneId.systemDefault()
                     );
+
+                    System.out.println(FORMATTER.format(loadedAfter));
                     lists.add(DeliveryRepository.DeliveryRepositoryImpl.instance.findAllLoadedAfter(loadedAfter));
                 }
                 if(unloadedUntilTimestampStr != null){
+                    System.out.printf("Provided Timestamp: %s%n", unloadedUntilTimestampStr);
+
                     LocalDateTime unloadedUntil = LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(Long.parseLong(unloadedUntilTimestampStr)),
                             ZoneId.systemDefault()
                     );
+
+                    System.out.println(FORMATTER.format(unloadedUntil));
                     lists.add(DeliveryRepository.DeliveryRepositoryImpl.instance.findAllUnloadedUntil(unloadedUntil));
                 }
                 if(unloadedAfterTimestampStr != null){
+                    System.out.printf("Provided Timestamp: %s%n", unloadedAfterTimestampStr);
+
                     LocalDateTime unloadedAfter = LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(Long.parseLong(unloadedAfterTimestampStr)),
                             ZoneId.systemDefault()
                     );
+
+                    System.out.println(FORMATTER.format(unloadedAfter));
                     lists.add(DeliveryRepository.DeliveryRepositoryImpl.instance.findAllUnloadedAfter(unloadedAfter));
                 }
 
@@ -230,7 +280,24 @@ public class DeliveryController extends Controller {
                 answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
 
             }catch (ServiceExecutionException e){
+                e.printStackTrace();
                 answerErr(ctx, 500, 0, "Ошибка сервиса: %s".formatted(e.getMessage()));
+            }
+            catch (NumberFormatException e){
+                e.printStackTrace();
+                answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                answerErr(ctx, 500, 0, "Внутренняя ошибка сервера: %s".formatted(e.getMessage()));
+            }
+        });
+
+        get("all", ctx -> {
+            try{
+                List<Delivery> result = new ArrayList<>();
+                result = DeliveryRepository.getInstance().findAll();
+                answerResponse(ctx, 200, new Response.ListResponse<>(1, result));
             }
             catch (NumberFormatException e){
                 answerErr(ctx, 400, 0, "Неккоректные параметры запроса: %s".formatted(e.getMessage()));

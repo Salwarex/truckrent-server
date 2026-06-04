@@ -89,7 +89,7 @@ public interface DeliveryRepository  extends GenericRepository<Delivery, Integer
         public List<Delivery> findAllLoadedUntil(LocalDateTime time) {
             try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 return session.createQuery(
-                                "SELECT d FROM Delivery d WHERE d.loadedUntil <= :time", Delivery.class)
+                                "SELECT d FROM Delivery d WHERE d.loadedDate <= :time", Delivery.class)
                         .setParameter("time", time)
                         .getResultList();
             }
@@ -99,7 +99,7 @@ public interface DeliveryRepository  extends GenericRepository<Delivery, Integer
         public List<Delivery> findAllLoadedAfter(LocalDateTime time) {
             try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 return session.createQuery(
-                                "SELECT d FROM Delivery d WHERE d.loadedAfter >= :time", Delivery.class)
+                                "SELECT d FROM Delivery d WHERE d.loadedDate >= :time", Delivery.class)
                         .setParameter("time", time)
                         .getResultList();
             }
@@ -109,7 +109,7 @@ public interface DeliveryRepository  extends GenericRepository<Delivery, Integer
         public List<Delivery> findAllUnloadedUntil(LocalDateTime time) {
             try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 return session.createQuery(
-                                "SELECT d FROM Delivery d WHERE d.unloadedUntil <= :time", Delivery.class)
+                                "SELECT d FROM Delivery d WHERE d.unloadedDate <= :time", Delivery.class)
                         .setParameter("time", time)
                         .getResultList();
             }
@@ -119,7 +119,7 @@ public interface DeliveryRepository  extends GenericRepository<Delivery, Integer
         public List<Delivery> findAllUnloadedAfter(LocalDateTime time) {
             try (Session session = HibernateUtil.getSessionFactory().openSession()) {
                 return session.createQuery(
-                                "SELECT d FROM Delivery d WHERE d.unloadedAfter >= :time", Delivery.class)
+                                "SELECT d FROM Delivery d WHERE d.unloadedDate >= :time", Delivery.class)
                         .setParameter("time", time)
                         .getResultList();
             }

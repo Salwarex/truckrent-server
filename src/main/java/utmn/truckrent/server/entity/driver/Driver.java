@@ -3,18 +3,14 @@ package utmn.truckrent.server.entity.driver;
 import jakarta.persistence.*;
 import utmn.truckrent.server.entity.account.Account;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "drivers")
 public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int driverId;
-
-//    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    private List<Delivery> deliveries = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    private List<Finance> finances = new ArrayList<>();
 
     @Column(nullable = false)
     private String surname;
@@ -30,8 +26,6 @@ public class Driver {
 
     public Driver(int driverId, String surname, String name, String lastname, Account account) {
         this.driverId = driverId;
-//        this.deliveries = deliveries;
-//        this.finances = finances;
         this.surname = surname;
         this.name = name;
         this.lastname = lastname;
@@ -48,22 +42,6 @@ public class Driver {
     public void setDriverId(int driverId) {
         this.driverId = driverId;
     }
-
-//    public List<Delivery> getDeliveries() {
-//        return deliveries;
-//    }
-//
-//    public void setDeliveries(List<Delivery> deliveries) {
-//        this.deliveries = deliveries;
-//    }
-//
-//    public List<Finance> getFinances() {
-//        return finances;
-//    }
-//
-//    public void setFinances(List<Finance> finances) {
-//        this.finances = finances;
-//    }
 
     public String getSurname() {
         return surname;
@@ -95,5 +73,18 @@ public class Driver {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Driver driver = (Driver) object;
+        return driverId == driver.driverId && Objects.equals(surname, driver.surname) && Objects.equals(name, driver.name) && Objects.equals(lastname, driver.lastname) && Objects.equals(account, driver.account);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(driverId, surname, name, lastname, account);
     }
 }

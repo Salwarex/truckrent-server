@@ -3,6 +3,8 @@ package utmn.truckrent.server.entity.truck;
 import jakarta.persistence.*;
 import utmn.truckrent.server.entity.truckmark.TruckMark;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "trucks")
 public class Truck {
@@ -48,5 +50,18 @@ public class Truck {
 
     public void setLoadCapacityKg(int loadCapacityKg) {
         this.loadCapacityKg = loadCapacityKg;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Truck truck = (Truck) object;
+        return truckId == truck.truckId && loadCapacityKg == truck.loadCapacityKg && Objects.equals(truckMark, truck.truckMark);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(truckId, truckMark, loadCapacityKg);
     }
 }

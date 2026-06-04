@@ -8,6 +8,7 @@ import utmn.truckrent.server.entity.truck.Truck;
 import utmn.truckrent.server.entity.container.Container;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "deliveries")
@@ -38,19 +39,19 @@ public class Delivery {
 
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime loadDate;
+    private LocalDateTime loadedDate;
 
-    private LocalDateTime unloadDate;
+    private LocalDateTime unloadedDate;
 
-    public Delivery(int deliveryId, Partner sender, Partner receiver, Driver driver, Container container, Truck truck, LocalDateTime loadDate, LocalDateTime unloadDate) {
+    public Delivery(int deliveryId, Partner sender, Partner receiver, Driver driver, Container container, Truck truck, LocalDateTime loadedDate, LocalDateTime unloadedDate) {
         this.deliveryId = deliveryId;
         this.sender = sender;
         this.receiver = receiver;
         this.driver = driver;
         this.container = container;
         this.truck = truck;
-        this.loadDate = loadDate;
-        this.unloadDate = unloadDate;
+        this.loadedDate = loadedDate;
+        this.unloadedDate = unloadedDate;
     }
 
     public Delivery() {
@@ -105,19 +106,32 @@ public class Delivery {
         this.truck = truck;
     }
 
-    public LocalDateTime getLoadDate() {
-        return loadDate;
+    public LocalDateTime getLoadedDate() {
+        return loadedDate;
     }
 
-    public void setLoadDate(LocalDateTime loadDate) {
-        this.loadDate = loadDate;
+    public void setLoadedDate(LocalDateTime loadedDate) {
+        this.loadedDate = loadedDate;
     }
 
-    public LocalDateTime getUnloadDate() {
-        return unloadDate;
+    public LocalDateTime getUnloadedDate() {
+        return unloadedDate;
     }
 
-    public void setUnloadDate(LocalDateTime unloadDate) {
-        this.unloadDate = unloadDate;
+    public void setUnloadedDate(LocalDateTime unloadedDate) {
+        this.unloadedDate = unloadedDate;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Delivery delivery = (Delivery) object;
+        return deliveryId == delivery.deliveryId && Objects.equals(sender, delivery.sender) && Objects.equals(receiver, delivery.receiver) && Objects.equals(driver, delivery.driver) && Objects.equals(container, delivery.container) && Objects.equals(truck, delivery.truck) && Objects.equals(loadedDate, delivery.loadedDate) && Objects.equals(unloadedDate, delivery.unloadedDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deliveryId, sender, receiver, driver, container, truck, loadedDate, unloadedDate);
     }
 }
