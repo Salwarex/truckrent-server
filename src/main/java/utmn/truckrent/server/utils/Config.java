@@ -42,7 +42,7 @@ public class Config {
                         StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING);
 
-                System.out.println("✅ Создан файл конфигурации: " + CONFIG_PATH.toAbsolutePath());
+                System.out.println("Создан файл конфигурации: " + CONFIG_PATH.toAbsolutePath());
                 return defaultContent;
             }
 
